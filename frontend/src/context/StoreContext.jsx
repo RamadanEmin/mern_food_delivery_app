@@ -1,13 +1,31 @@
 /* eslint-disable react/prop-types */
-import { createContext } from 'react';
+import { createContext, useState } from 'react';
 import { food_list } from '../assets/assets';
 
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
+    const [cartItems, setCartItems] = useState({});
+
+    const addToCart = async (itemId) => {
+        if (!cartItems[itemId]) {
+            setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
+        }
+        else {
+            setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+        }
+    };
+
+    const removeFromCart = async (itemId) => {
+        setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
+    };
 
     const contextValue = {
-        food_list
+        food_list,
+        cartItems,
+        setCartItems,
+        addToCart,
+        removeFromCart
     };
 
     return (
