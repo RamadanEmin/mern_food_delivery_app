@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
+import axios from 'axios';
 import { assets } from '../../assets/assets';
+import { StoreContext } from '../../context/StoreContext';
 
 import './LoginPopup.css';
 
@@ -12,20 +14,39 @@ const LoginPopup = ({ setShowLogin }) => {
         password: ''
     });
 
+    const { url, setToken } = useContext(StoreContext);
+
     const onChangeHandler = (event) => {
         const name = event.target.name;
         const value = event.target.value;
         setData(data => ({ ...data, [name]: value }));
     };
 
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
+    const onLogin = async (event) => {
+        event.preventDefault();
+        let newUrl = url;
+        if (currState === 'Login') {
+            newUrl += '/api/user/login';
+        }
+        else {
+            newUrl += '/api/user/register';
+        }
 
+        const response = await axios.post(newUrl, data);
+
+        if (response.data.success) {
+            setToken(response.data.token);
+            localStorage.setItem('token', response.data.token);
+            setShowLogin(false);
+        }
+        else {
+            alert(response.data.message);
+        }
+    };
 
     return (
         <div className='login-popup'>
-            <form className="login-popup-container">
+            <form onSubmit={onLogin} className="login-popup-container">
                 <div className="login-popup-title">
                     <h2>{currState}</h2>
                     <img onClick={() => setShowLogin(false)} src={assets.cross_icon} alt="" />
