@@ -1,11 +1,27 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { assets } from '../../assets/assets';
 
 import './LoginPopup.css';
 
 const LoginPopup = ({ setShowLogin }) => {
     const [currState, setCurrState] = useState('Login');
+    const [data, setData] = useState({
+        name: '',
+        email: '',
+        password: ''
+    });
+
+    const onChangeHandler = (event) => {
+        const name = event.target.name;
+        const value = event.target.value;
+        setData(data => ({ ...data, [name]: value }));
+    };
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
+
 
     return (
         <div className='login-popup'>
@@ -17,10 +33,31 @@ const LoginPopup = ({ setShowLogin }) => {
                 <div className="login-popup-inputs">
                     {currState === 'Login'
                         ? <></>
-                        : <input name='name' type="text" placeholder='Your name' required />
+                        : <input
+                            type="text"
+                            onChange={onChangeHandler}
+                            name='name'
+                            value={data.name}
+                            placeholder='Your name'
+                            required
+                        />
                     }
-                    <input name='email' type="email" placeholder='Your email' required />
-                    <input name='password' type="password" placeholder='Password' required />
+                    <input
+                        type="email"
+                        onChange={onChangeHandler}
+                        name='email'
+                        value={data.email}
+                        placeholder='Your email'
+                        required
+                    />
+                    <input
+                        type="password"
+                        onChange={onChangeHandler}
+                        name='password'
+                        value={data.password}
+                        placeholder='Password'
+                        required
+                    />
                 </div>
                 <button type='submit'>{currState === 'Sign Up' ? 'Create account' : 'Login'}</button>
                 <div className="login-popup-condition">
