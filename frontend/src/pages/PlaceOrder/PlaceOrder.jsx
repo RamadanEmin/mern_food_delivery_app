@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { StoreContext } from '../../context/StoreContext';
+import axios from 'axios';
 
 import './PlaceOrder.css';
 
 const PlaceOrder = () => {
-    const { getTotalCartAmount } = useContext(StoreContext);
+    const { getTotalCartAmount, token, food_list, cartItems, url } = useContext(StoreContext);
 
     const [data, setData] = useState({
         firstName: '',
@@ -24,13 +25,35 @@ const PlaceOrder = () => {
         setData(data => ({ ...data, [name]: value }));
     };
 
-    useEffect(()=>{
-        console.log(data);
-    }
-    ,[data]);
+    const placeOrder = async (event) => {
+        event.preventDefault();
+        let orderItems = [];
+
+        food_list.map((item) => {
+            if (cartItems[item._id] > 0) {
+                let itemInfo = item;
+                itemInfo['quantity'] = cartItems[item._id];
+                orderItems.push(itemInfo);
+            }
+        });
+
+        let orderData = {
+            address: data,
+            items: orderItems,
+            amount: getTotalCartAmount() + 2,
+        };
+        let response = await axios.post(url + '/api/order/place', orderData, { headers: { token } });
+
+        if (response.data.success) {
+            const { session_url } = response.data;
+            window.location.replace(session_url);
+        }else {
+            alert('Error');
+        }
+    };
 
     return (
-        <form className='place-order'>
+        <form onSubmit={placeOrder} className='place-order'>
             <div className="place-order-left">
                 <p className="title">Delivery Information</p>
                 <div className="multi-fields">
